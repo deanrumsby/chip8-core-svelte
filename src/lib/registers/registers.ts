@@ -1,4 +1,4 @@
-import { writable } from "svelte/store";
+import { writable } from "@deanrumsby/simple-store-svelte";
 
 import { calculateMaximumRegisterValue } from "./utils";
 
@@ -41,6 +41,11 @@ function createRegisters() {
   const store = writable<Registers>(initialState);
   const { subscribe } = store;
 
+  function read(name: string | number) {
+    const registers = store.get();
+    return registers[name].value;
+  }
+
   function set(name: string | number, value: number) {
     store.update((prevState) => {
       const register = prevState[name];
@@ -56,7 +61,7 @@ function createRegisters() {
     store.set(initialState);
   }
 
-  return { subscribe, set, clear };
+  return { subscribe, read, set, clear };
 }
 
 export const registers = createRegisters();
