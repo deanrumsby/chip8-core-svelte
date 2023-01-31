@@ -37,7 +37,7 @@ const initialState: Registers = {
   0xf: { name: 'VF', value: 0x0, sizeInBytes: 1, hasOverflown: false }, 
 }
 
-function createRegisters() {
+export function createRegisters() {
   const store = writable<Registers>(initialState);
   const { subscribe } = store;
 
@@ -57,11 +57,11 @@ function createRegisters() {
     });
   }
 
-  function clear() {
+  function reset() {
     store.set(initialState);
   }
 
-  return { subscribe, read, set, clear };
+  return { subscribe, read, set, reset };
 }
 
 export const registers = createRegisters();
