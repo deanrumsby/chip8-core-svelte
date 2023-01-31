@@ -15,3 +15,12 @@ test('if we write to memory, we can read it afterwards', () => {
   const buffer = memory.read(0x50, 3);
   expect(buffer).toEqual(data);
 });
+
+test('can reset memory', () => {
+  const memory = createMemory();
+  const data = [0x25, 0x40, 0x2a, 0xa2];
+  memory.write(0x32, data);
+  memory.reset();
+  const buffer = memory.read(0x32, 2);
+  expect(buffer).toEqual([0x0, 0x0]);
+});
