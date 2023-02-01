@@ -23,7 +23,7 @@ export function createStack() {
       value = newState.pop();
       return newState;
     });
-    return value;
+    return value as unknown as number;
   }
 
   function reset() {
