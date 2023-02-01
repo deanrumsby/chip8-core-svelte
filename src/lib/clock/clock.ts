@@ -6,10 +6,10 @@ const timePerInstruction = 1000 / INSTRUCTIONS_PER_SECOND;
 export function createClock() {
 
   let count = 0;
-  let startTime = 0;
+  let startTime: number | null = null;
 
   function tick() {
-    if (startTime === 0) {
+    if (!startTime) {
       startTime = Date.now();
     }
 
@@ -30,7 +30,7 @@ export function createClock() {
 
   function reset() {
     count = 0;
-    startTime = 0;
+    startTime = null;
   }
 
   return { tick, reset };
