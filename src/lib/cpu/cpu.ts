@@ -1,9 +1,11 @@
-import { createInstruction } from "./utils";
+import { createInstruction, convertToTwoByteWord, createDecimalBuffer } from "./utils";
 import { registers } from "../registers";
 import { memory } from "../memory";
 import { frame } from '../frame';
 import { stack } from '../stack';
 import { clock } from '../clock';
+import { keyboard } from '../io';
+import { determineFontOffset, FONT_MASK } from '../font';
 
 interface Instruction {
   opcode: string,
@@ -16,8 +18,16 @@ interface Instruction {
 }
 
 const OPCODE_SIZE_BYTES = 2;
+const MAXIMUM_8BIT_VALUE = 0b11111111;
+const MAXIMUM_16BIT_VALUE = 0b11111111_11111111;
+const LSB_MASK = 0b00000001;
+const MSB_MASK = 0b10000000;
+const MSB_SHIFT = 7;
+const MAXIMUM_ADDRESS_VALUE = 0x0fff;
 
 export function createCpu() {
+
+  const inCosmacMode = true;
 
   function step() {
 		const opcode = fetch();
@@ -230,7 +240,7 @@ export function createCpu() {
 				switch (nn) {
 					case 0x9e: {
 						const valueVX = registers.read(x);
-						if ($keysState[valueVX] === 'keydown') {
+						if (keyboard.read(valueVX) === 'keydown') {
 							registers.increment('PC', OPCODE_SIZE_BYTES);
 						}
 						break;
@@ -238,7 +248,7 @@ export function createCpu() {
 
 					case 0xa1: {
 						const valueVX = registers.read(x);
-						if ($keysState[valueVX] !== 'keydown') {
+						if (keyboard.read(valueVX) !== 'keydown') {
 							registers.increment('PC', OPCODE_SIZE_BYTES);
 						}
 						break;
@@ -280,7 +290,7 @@ export function createCpu() {
 					}
 
 					case 0x0a: {
-						const keyUp = $keysState.indexOf('keyup');
+						const keyUp = keyboard.getFirstKeyUp();
 						if (keyUp >= 0) {
 							registers.set(x, keyUp);
 							break;
@@ -334,11 +344,11 @@ export function createCpu() {
 			registers.increment('PC', OPCODE_SIZE_BYTES);
 		}
 
-		nullifyKeyUpEvents();
+		keyboard.removeKeyUpState();
 	}
 
 	function throwInvalidInstructionError(instruction: Instruction) {
-		throw new Error(`Invalid instruction provided: ${instruction.opcodeString}`);
+		throw new Error(`Invalid instruction provided: ${instruction.opcode}`);
 	}
 
   return { step };
