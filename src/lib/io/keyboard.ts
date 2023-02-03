@@ -11,6 +11,15 @@ const initialState: KeyState[] = new Array(KEY_COUNT).fill(null);
 export function createKeyboard() {
   const store = writable<KeyState[]>(initialState);
 
+  function read(key: number) {
+    return store.get()[key];
+  }
+
+  function getFirstKeyUp() {
+    const state = store.get();
+    return state.indexOf('keyup');
+  }
+
   function onKeyDown(keyCode: string) {
     const key = keyMap[keyCode];
     if (key !== undefined) {
@@ -39,7 +48,7 @@ export function createKeyboard() {
     });
   }
 
-  return { onKeyDown, onKeyUp, removeKeyUpState };
+  return { read, getFirstKeyUp, onKeyDown, onKeyUp, removeKeyUpState };
 }
 
 export const keyboard = createKeyboard();
