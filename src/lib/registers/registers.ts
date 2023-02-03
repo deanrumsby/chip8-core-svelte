@@ -51,17 +51,32 @@ export function createRegisters() {
       const register = prevState[name];
       const maximumValue = calculateMaximumRegisterValue(register.sizeInBytes);
       const newValue = value & maximumValue;
-      const newHasOverflown = newValue !== value;
-      const newRegister = { ...register, value: newValue, hasOverflown: newHasOverflown}
+      const newHasOverflown = (newValue !== value);
+      const newRegister = { ...register, value: newValue, hasOverflown: newHasOverflown };
       return { ...prevState, [name]: newRegister };
     });
+  }
+
+  function increment(name: string, amount: number) {
+    store.update((prevState) => {
+      const register = prevState[name];
+      const maximumValue = calculateMaximumRegisterValue(register.sizeInBytes);
+      const newValue = (register.value + amount) & maximumValue;
+      const newHasOverflown = (newValue !== register.value + amount);
+      const newRegister = { ...register, value: newValue, hasOverflown: newHasOverflown };
+      return { ...prevState, [name]: newRegister };
+    });
+  }
+
+  function decrement(name: string, amount: number) {
+    increment(name, -amount);
   }
 
   function reset() {
     store.set(initialState);
   }
 
-  return { subscribe, read, set, reset };
+  return { subscribe, read, set, increment, decrement, reset };
 }
 
 export const registers = createRegisters();
